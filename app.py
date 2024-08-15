@@ -54,13 +54,14 @@ def handle_message(event):
             return
         #get the user id, title and index
         user_id = event.source.user_id
-        title=get_title(event.message.text)
+        title,ep=get_title_ep(event.message.text)
         index=get_index(event.message.text)
         domain=event.message.text.split('/')[2]
         print("Somebody subscribe"+title[0],index,domain,user_id)
-
+        #check if the title is already in the database
+        
         #check if the user has already subscribed
-        if asyncio.run(databaseLib.is_already_subscribed(user_id,index,domain)):
+        if asyncio.run(databaseLib.is_already_subscribed(user_id,domain,title[0])):
             line_bot_api.reply_message_with_http_info(
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
@@ -68,8 +69,7 @@ def handle_message(event):
             return
         
         #write the subscription into the database
-        asyncio.run(databaseLib.add_user(user_id,index,domain))
-        #return the subscription content
+        asyncio.run(databaseLib.user_subscribed(user_id,domain,title[0],ep,event.message.text,index))#UserID, domainname, title,ep,url
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
@@ -77,20 +77,16 @@ def handle_message(event):
             )
         )
         
-def get_title(url):
+def get_title_ep(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     title_divs = soup.find_all('div', class_='details_top_left_top')
     title = [div.find('h3').get_text() for div in title_divs if div.find('h3')]
-    return title
+    ep=soup.find('span', class_='pull-right').get_text()
+    return title,ep[2:-3]
 def get_index(url):
     index=url.split('/')[-1].split('.')[0]
     return index
-def add_subscription(userID,website,Subscription):
-    
-    return
-
-
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 80))
