@@ -5,6 +5,10 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
+import key
+
+from urllib.parse import urlparse
+
 from linebot.v3 import WebhookHandler
 from linebot.v3.messaging import Configuration,ApiClient,MessagingApi,ReplyMessageRequest,TextMessage
 from linebot.v3.webhooks import MessageEvent,TextMessageContent
@@ -15,8 +19,8 @@ import databaseLib
 app = Flask(__name__)
 
 
-configuration = Configuration(access_token='q8jsC+r72gu80rKQ3zx589kAJf1vjR7i0T9K8OANFWEl2fS4XbjbDRoOT+GfCuGWJM5tUhfBTjCOkqgvNA4Z2EDIEAf/R28n+VpTGL3EcVP1Np7uslE2WyH4pFrw41NsBtKh4zezMaQLdkO+WO5U2gdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('8485989bb170b428a3e6bab0aa413f01')
+configuration = Configuration(access_token=key.my_access_token)
+handler = WebhookHandler(key.my_WebhookHandler)
 
 
 @app.route("/callback", methods=['POST'])
@@ -41,7 +45,13 @@ def callback():
 def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
-
+        #check if the message is a valid url
+        if not urlparse(event.message.text).scheme:
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text="僅接受輸入網址")]))
+            return
         #get the user id, title and index
         user_id = event.source.user_id
         title=get_title(event.message.text)
@@ -54,7 +64,7 @@ def handle_message(event):
             line_bot_api.reply_message_with_http_info(
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
-                    messages=[TextMessage(text="您已經訂閱過了: "+title[0])]))
+                    messages=[TextMessage(text="您已經訂閱過了:["+title[0]+"]")]))
             return
         
         #write the subscription into the database
@@ -83,5 +93,5 @@ def add_subscription(userID,website,Subscription):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 80))
     app.run(host='0.0.0.0', port=port)
