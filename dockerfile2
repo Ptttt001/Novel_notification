@@ -1,0 +1,41 @@
+# 使用 Python 基础镜像
+FROM python:3.9-slim
+
+# 设置工作目录
+WORKDIR /usr/src/app
+
+# 复制 requirements.txt 并安装依赖
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade Flask itsdangerous
+RUN pip install gunicorn
+
+
+# 复制应用文件到容器中
+COPY app.py ./
+COPY spider.py ./
+COPY databaseLib.py ./
+COPY key.py ./
+COPY notification.db ./
+COPY cronjob /etc/cron.d/mycron
+# 安装 cron
+RUN apt-get update && apt-get install -y cron
+# 设置可执行权限
+RUN chmod 0644 /etc/cron.d/mycron
+
+# 应用 cron 作业
+RUN crontab /etc/cron.d/mycron
+
+# 创建日志文件
+RUN touch /usr/src/app/spider.log
+
+#cron job
+#RUN echo '*/1 * * * * root /usr/local/bin/python /usr/src/app/spider.py' > /var/spool/cron/crontabs/root
+# 创建必要的目录（如果需要）
+#RUN mkdir -p /var/log/cron
+
+# 暴露端口 80
+EXPOSE 80
+
+# 启动 cron 服务和 app.py
+CMD ["gunicorn", "-b", "0.0.0.0:80", "app:app", "&&","cron","-f"]

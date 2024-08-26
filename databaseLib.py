@@ -67,3 +67,13 @@ def format_phaser(url):
     url[-1]='index.html'
     url='/'.join(url)
     return url
+def update_ep(collection):
+    conn = sqlite3.connect('notification.db')
+    c = conn.cursor()
+    for i in collection:
+        title=i[0]
+        recent_ep=i[1]
+        c.execute('UPDATE noval SET ep=? WHERE title=?',(recent_ep,title))
+        conn.commit()
+    conn.close()
+    return
