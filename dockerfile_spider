@@ -13,9 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY spider.py ./
 COPY databaseLib.py ./
 COPY key.py ./
-COPY notification.db ./
-
-
+COPY sqlite_storage/notification.db ./sqlite_storage/notification.db
 
 # 启动 cron 服务和 app.py
 CMD ["python", "spider.py"]

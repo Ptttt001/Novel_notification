@@ -1,6 +1,6 @@
 import sqlite3
 async def add_user(UserID, domainname, title):
-    conn = sqlite3.connect('notification.db')
+    conn = sqlite3.connect('sqlite_storage/notification.db')
     c = conn.cursor()
     c.execute('INSERT INTO user(userid,domainname,title) VALUES(?,?,?)',(UserID,domainname,title))
     conn.commit()
@@ -10,7 +10,7 @@ async def add_user(UserID, domainname, title):
     conn.close()
 
 async def is_already_subscribed(UserID, domainname,  title):
-    conn = sqlite3.connect('notification.db')
+    conn = sqlite3.connect('sqlite_storage/notification.db')
     c = conn.cursor()
     c.execute('SELECT * FROM user WHERE userid=? AND domainname=? AND title=?',(UserID,domainname,title))
     if c.fetchone():
@@ -20,7 +20,7 @@ async def is_already_subscribed(UserID, domainname,  title):
     conn.close()
 
 async def check_and_add_noval(title,ep):
-    conn = sqlite3.connect('notification.db')
+    conn = sqlite3.connect('sqlite_storage/notification.db')
     c = conn.cursor()
     c.execute('SELECT * FROM noval WHERE title=?',(title,))
     if c.fetchone():
@@ -30,7 +30,7 @@ async def check_and_add_noval(title,ep):
         conn.commit()
     conn.close()
 async def check_and_add_website(domainname,url):
-    conn = sqlite3.connect('notification.db')
+    conn = sqlite3.connect('sqlite_storage/notification.db')
     c = conn.cursor()
     c.execute('SELECT * FROM website WHERE domainname=?',(domainname,))
     if c.fetchone():
@@ -41,7 +41,7 @@ async def check_and_add_website(domainname,url):
         conn.commit()
     conn.close()
 async def check_and_add_have(domainname,title,indexs):
-    conn = sqlite3.connect('notification.db')
+    conn = sqlite3.connect('sqlite_storage/notification.db')
     c = conn.cursor()
     c.execute('SELECT * FROM have WHERE domainname=? AND title=? AND indexs=?',(domainname,title,indexs))
     if c.fetchone():
@@ -50,6 +50,16 @@ async def check_and_add_have(domainname,title,indexs):
         c.execute('INSERT INTO have(domainname,title,indexs) VALUES(?,?,?)',(domainname,title,indexs))
         conn.commit()
     conn.close()
+def update_ep(collection):
+    conn = sqlite3.connect('sqlite_storage/notification.db')
+    c = conn.cursor()
+    for i in collection:
+        title=i[0]
+        recent_ep=i[1]
+        c.execute('UPDATE noval SET ep=? WHERE title=?',(recent_ep,title))
+        conn.commit()
+    conn.close()
+    return
 
     
 
@@ -67,13 +77,4 @@ def format_phaser(url):
     url[-1]='index.html'
     url='/'.join(url)
     return url
-def update_ep(collection):
-    conn = sqlite3.connect('notification.db')
-    c = conn.cursor()
-    for i in collection:
-        title=i[0]
-        recent_ep=i[1]
-        c.execute('UPDATE noval SET ep=? WHERE title=?',(recent_ep,title))
-        conn.commit()
-    conn.close()
-    return
+

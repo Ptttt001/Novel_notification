@@ -24,7 +24,7 @@ async def send_message(UserID, title,recent_ep,url,ep_num):
 
 
 print("start spider")
-con = sqlite3.connect('notification.db')
+con = sqlite3.connect('sqlite_storage/notification.db')
 cursorObj = con.cursor()
 cursorObj.execute('''SELECT
     noval.title,
@@ -82,4 +82,3 @@ for i in notify_list:
 
 databaseLib.update_ep(notify_list)
 con.close()
-
