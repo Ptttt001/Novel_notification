@@ -1,5 +1,5 @@
 # 使用 Python 基础镜像
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
 # 设置工作目录
 WORKDIR /usr/src/app
@@ -16,8 +16,6 @@ COPY spider.py ./
 COPY databaseLib.py ./
 COPY key.py ./
 COPY sqlite_storage/notification.db ./sqlite_storage/notification.db
-# 安装 cron
-RUN apt-get update
 
 # 暴露端口 80
 EXPOSE 80
