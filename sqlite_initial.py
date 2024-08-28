@@ -1,5 +1,5 @@
 import sqlite3
-con = sqlite3.connect('sqlite_storage/notification.db')
+con = sqlite3.connect('/sqlite_storage/notification.db')
 #noval
 cursorObj = con.cursor()
 cursorObj.execute('''CREATE TABLE noval (

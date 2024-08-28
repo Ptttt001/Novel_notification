@@ -1,8 +1,8 @@
 FROM python:3.9-alpine
 
 # 设置工作目录
-WORKDIR /usr/src/app
-
+RUN mkdir /sqlite_storage
+WORKDIR /sqlite_storage
 
 # 复制应用文件到容器中
 COPY sqlite_initial.py ./

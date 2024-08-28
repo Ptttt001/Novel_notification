@@ -1,0 +1,25 @@
+# This manifest mounts /data/foo on the host as /foo inside the
+# single container that runs within the hostpath-example-linux Pod.
+#
+# The mount into the container is read-only.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sqlite-init
+spec:
+  containers:
+  - name: sqlite-init
+    image: ptttt001/sqlite:v1
+    volumeMounts:
+    - mountPath: /usr/src/app/sqlite_storage
+      name: example-volume
+  - name: flask
+    image: ptttt001/flask:v1
+    volumeMounts:
+    - mountPath: /usr/src/app/sqlite_storage
+      name: example-volume
+  volumes:
+  - name: example-volume
+    # mount /data/foo, but only if that directory already exists
+    hostPath:
+      path: C:/Users/user/Desktop/Notification/sqlite_storage # directory location on host

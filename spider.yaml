@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: spider
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: spider
+            image: ptttt001/spider:v1
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+            - mountPath: /usr/src/app/sqlite_storage
+              name: example-volume
+          restartPolicy: OnFailure
+          volumes:
+          - name: example-volume
+            # mount /data/foo, but only if that directory already exists
+            hostPath:
+              path: C:\Users\user\Desktop\Notification\sqlite_storage  # directory location on host
+              type: Directory # this field is optional
+        
